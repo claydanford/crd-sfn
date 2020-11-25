@@ -27,9 +27,6 @@ functions:
   evalTransaction:
     handler: src/eval.handler
 
-  dynamoDBWrite:
-    handler: src/ddb.handler
-
   sendEmail:
     handler: src/ses.handler
 
@@ -71,10 +68,19 @@ stepFunctions:
             Default: dynamoDBWrite
           dynamoDBWrite:
             Type: Task
-            Resource:
-              Fn::GetAtt:
-                - dynamoDBWrite
-                - Arn
+            Resource: arn:aws:states:::dynamodb:putItem
+            Parameters:
+              TableName:
+                Ref: DDBTable
+              Item:
+                ID:
+                  S: $.id
+                NAME:
+                  S: $.Name
+                ITEM:
+                  S: $.Item
+                EMAIL:
+                  S: $.Email
             Next: sendEmail
           sendEmail:
             Type: Task
